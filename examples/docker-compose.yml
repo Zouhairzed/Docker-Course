@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+
+  web_service:
+    build: web
+    command: python app.py
+    ports:
+     - "5000:5000"
+    volumes:
+     - ./web:/code # modified here to take into account the new app path
+    links:
+     - redis_service:redis
+
+
+     
+  redis_service:
+    image: redis
+
+  
+  
+  datadog:
+    build: datadog
+    links:
+     - redis_service:redis
+     - web_service:web
+    environment:
+     - DD_API_KEY=__your_datadog_api_key_here__
+     - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+     - /proc/:/host/proc/:ro
+     - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+     
